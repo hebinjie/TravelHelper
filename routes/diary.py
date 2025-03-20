@@ -5,10 +5,10 @@ from ..models.diary import Diary
 import datetime
 
 # 创建蓝图对象，用于组织路由
-bp = Blueprint('diary', __name__)
+Diarybp = Blueprint('diary', __name__)
 
 # 发布日记
-@bp.route('/api/diary', methods=['POST'])
+@Diarybp.route('/api/diary', methods=['POST'])
 def CreateDiary():
     try:
         # 获取前端传递的 JSON 数据
@@ -49,7 +49,7 @@ def CreateDiary():
 
 
 # 删除指定编号日记
-@bp.route('/api/diary/<int:diary_id>', methods=['DELETE'])
+@Diarybp.route('/api/diary/<int:diary_id>', methods=['DELETE'])
 def DeleteDiary(diary_id):
     try:
         # 从 JSON 文件中读取日记数据
@@ -66,7 +66,7 @@ def DeleteDiary(diary_id):
 
 
 # 更新指定编号日记
-@bp.route('/api/diary/<int:id>', methods=['PUT'])
+@Diarybp.route('/api/diary/<int:id>', methods=['PUT'])
 def UpadateDiary(id):
     try:
         # 从 JSON 文件中读取日记数据
@@ -112,7 +112,7 @@ def UpadateDiary(id):
 
 
 # 获取指定编号日记
-@bp.route('/api/diary/<int:id>', methods=['GET'])
+@Diarybp.route('/api/diary/<int:id>', methods=['GET'])
 def GetDiary(id):
     try:
         # 从 JSON 文件中读取日记数据
