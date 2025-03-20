@@ -1,7 +1,7 @@
 import os
 from pydantic import BaseModel
 from flask import Blueprint, request, jsonify
-from ..models.diary import Diary
+from models.diary import Diary
 import datetime
 
 # 创建蓝图对象，用于组织路由
@@ -124,6 +124,44 @@ def GetDiary(id):
             return jsonify(diary.model_dump()), 200
         else:
             return jsonify({'error': 'Diary not found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# 获取日记列表
+@Diarybp.route('/api/diary', methods=['GET'])
+def GetDiaryList():
+    try:
+        uid = request.args.get('uid', type=int)
+        page = request.args.get('page', default=1, type=int)
+        limit = request.args.get('limit', default=3, type=int)
+        if not uid and uid!=0:
+            return jsonify({'error': 'No uid provided'}), 400
+
+        # 从 JSON 文件中读取日记数据
+        diaries = Diary.read_diaries()
+        # 过滤出指定 uid 的日记
+        if uid and uid != 0:
+            diaries = [diary for diary in diaries if diary.uid == uid]
+        
+        # 计算当前页起始索引
+        start_index = (page - 1) * limit
+        # 计算当前页结束索引
+        end_index = start_index + limit
+        # 获取当前页的日记数据
+        paginated_diaries = diaries[start_index:end_index]
+
+        # 构建响应数据字典
+        response = {
+            "diary_num": len(paginated_diaries),  # 当前页的日记数量
+            # 将当前页的Diary对象转换为字典形式
+            "data": [diary.model_dump() for diary in paginated_diaries],
+            # 计算总页数
+            "total_pages": (len(diaries) + limit - 1) // limit
+        }
+        # 将响应数据返回给客户端
+        return jsonify(response)
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
