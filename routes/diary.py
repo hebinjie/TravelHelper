@@ -1,5 +1,3 @@
-import os
-from pydantic import BaseModel
 from flask import Blueprint, request, jsonify
 from models.diary import Diary
 import datetime
