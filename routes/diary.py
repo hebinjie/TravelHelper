@@ -34,7 +34,7 @@ def CreateDiary():
         now_str = now.strftime('%Y-%m-%d %H:%M:%S')
         
         # 创建新的日记对象
-        new_diary = Diary(id=new_id, title=title, content=content, images=image_paths, uid=111,username=111,create_time=now_str, update_time=now_str, heat=0)
+        new_diary = Diary(id=new_id, title=title, content=content, images=image_paths, uid=111,username='aaa',create_time=now_str, update_time=now_str, heat=0)
         # 将新日记添加到日记列表中
         diaries.append(new_diary)
         # 将更新后的日记列表写入 JSON 文件
@@ -154,7 +154,8 @@ def GetDiaryList():
         response = {
             "diary_num": len(paginated_diaries),  # 当前页的日记数量
             # 将当前页的Diary对象转换为字典形式
-            "data": [diary.model_dump() for diary in paginated_diaries],
+            "data": [{**diary.model_dump(), 
+                    "content": diary.content[:20]} for diary in paginated_diaries],
             # 计算总页数
             "total_pages": (len(diaries) + limit - 1) // limit
         }

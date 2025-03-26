@@ -7,8 +7,8 @@ from config import DIARY_FILE
 # 定义日记数据模型类
 class Diary(BaseModel):
     id: int                             # 日记的唯一编号
-    uid: Optional[int]                  # 日记的作者编号
-    username: Optional[str]             # 日记的作者用户名
+    uid: Optional[int] = 0              # 日记的作者编号
+    username: Optional[str] = None      # 日记的作者用户名
     title: str                          # 日记的标题
     content: str                        # 日记的内容
     images: Optional[List[str]] = []    # 日记包含的图片路径列表，默认为空列表
