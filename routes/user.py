@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.user import User
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,timezone
 from functools import wraps
 import jwt
 
@@ -15,7 +15,8 @@ def generate_token(user):
     # 定义 JWT 令牌的负载，包含用户 ID 和过期时间
     payload = {
         'user_id': user.id,
-        'exp': datetime.now(datetime.timezone.utc) + timedelta(minutes=40)
+        'username': user.username,
+        'exp': datetime.now(timezone.utc) + timedelta(days=1)
     }
     # 生成 JWT 令牌
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
@@ -55,49 +56,55 @@ def token_required(f):
 # 用户注册接口
 @Userbp.route('/api/register', methods=['POST'])
 def register():
-    # 获取请求中的 JSON 数据
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    try:
+        # 获取请求中的 JSON 数据
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
 
-    if not username or not password:
-        return jsonify({'message': 'Username and password are required!'}), 400
+        if not username or not password:
+            return jsonify({'message': 'Username and password are required!'}), 400
 
-    # 读取所有用户数据
-    users = User.read_users()
-    # 检查是否存在同名用户
-    if next((u for u in users if u.username == username), None):
-        return jsonify({'message': 'Username already exists!'}), 400
+        # 读取所有用户数据
+        users = User.read_users()
+        # 检查是否存在同名用户
+        if next((u for u in users if u.username == username), None):
+            return jsonify({'message': 'Username already exists!'}), 400
 
-    # 创建新的 User 对象
-    new_user = User(id=len(users) + 1, username=username, password=password)
-    # 将新用户添加到用户列表中
-    users.append(new_user)
-    User.write_users(users)
+        # 创建新的 User 对象
+        new_user = User(id=len(users) + 1, username=username, password=password)
+        # 将新用户添加到用户列表中
+        users.append(new_user)
+        User.write_users(users)
 
-    # 返回注册成功信息和生成的令牌，状态码为 201
-    return jsonify({'code': '200','message': 'User registered successfully!'}), 200
+        # 返回注册成功信息和生成的令牌，状态码为 201
+        return jsonify({'code': '200','message': 'User registered successfully!'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # 用户登录接口
 @Userbp.route('/api/login', methods=['POST'])
 def login():
-    # 获取请求中的 JSON 数据
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    try:
+        # 获取请求中的 JSON 数据
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
 
-    if not username or not password:
-        return jsonify({'message': 'Username and password are required!'}), 400
+        if not username or not password:
+            return jsonify({'message': 'Username and password are required!'}), 400
 
-    # 读取所有用户数据
-    users = User.read_users()
-    # 查找匹配的用户对象
-    user = next((u for u in users if u.username == username), None)
+        # 读取所有用户数据
+        users = User.read_users()
+        # 查找匹配的用户对象
+        user = next((u for u in users if u.username == username), None)
 
-    if not user or user.password != password:
-        return jsonify({'message': 'Invalid username or password!'}), 401
+        if not user or user.password != password:
+            return jsonify({'message': 'Invalid username or password!'}), 401
 
-    # 为登录用户生成 JWT 令牌
-    token = generate_token(user)
-    # 返回登录成功信息和生成的令牌，状态码为 200
-    return jsonify({'code': '200','token': token}), 200
+        # 为登录用户生成 JWT 令牌
+        token = generate_token(user)
+        
+        return jsonify({'code': '200','token': token}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
