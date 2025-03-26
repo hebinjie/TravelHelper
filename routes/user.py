@@ -72,7 +72,7 @@ def register():
             return jsonify({'message': 'Username already exists!'}), 400
 
         # 创建新的 User 对象
-        new_user = User(id=len(users) + 1, username=username, password=password)
+        new_user = User(id=len(users) + 1, username=username, password=password, avatar=None, bio=None, diary_count=0, followers_count=0, following_count=0)
         # 将新用户添加到用户列表中
         users.append(new_user)
         User.write_users(users)
@@ -106,5 +106,59 @@ def login():
         token = generate_token(user)
         
         return jsonify({'code': '200','token': token}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# 获取指定编号用户信息
+@Userbp.route('/api/user/<int:id>', methods=['GET'])
+def GetUserInfo(id):
+    try:
+        # 从 JSON 文件中读取用户数据
+        users = User.read_users()
+        # 查找指定编号的用户
+        user= next((user for user in users if user.id == id), None)
+
+        if user:
+            return jsonify(user.model_dump(exclude={"password","id"})), 200
+        else:
+            return jsonify({'error': 'User not found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# 更新指定编号用户信息
+@Userbp.route('/api/user/<int:id>', methods=['PUT'])
+def UpdateUserInfo(id):
+    try:
+        # 获取请求中的 JSON 数据
+        data = request.get_json()
+        # 从 JSON 文件中读取用户数据
+        users = User.read_users()
+
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+        
+        # 查找指定 id 的用户
+        index = next((i for i, u in enumerate(users) if u.id == id), None)
+
+        if index is not None:
+            user = users[index]
+            avatar = data.get('avatar')
+            bio = data.get('bio')
+
+            if avatar:
+                user.avatar = avatar
+            if bio:
+                user.bio = bio
+
+            # 更新列表中的对应用户信息
+            users[index] = user
+            # 将更新后的用户列表写入 JSON 文件
+            User.write_users(users)
+
+            return jsonify({'code': '200','message': 'User updated successfully!'}), 200
+        else:
+            return jsonify({'error': 'User not found'}), 404
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500

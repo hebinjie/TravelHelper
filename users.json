@@ -3,5 +3,15 @@
         "id": 1,
         "username": "123456",
         "password": "123456"
+    },
+    {
+        "id": 2,
+        "username": "123",
+        "password": "123",
+        "avatar": "https://avatars.githubusercontent.com/u/8010990",
+        "bio": "\u51fa\u751f\u7231\u597d\u8005",
+        "diary_count": 0,
+        "followers_count": 0,
+        "following_count": 0
     }
 ]
