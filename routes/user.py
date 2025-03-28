@@ -77,8 +77,11 @@ def register():
         users.append(new_user)
         User.write_users(users)
 
-        # 返回注册成功信息和生成的令牌，状态码为 201
-        return jsonify({'code': '200','message': 'User registered successfully!'}), 200
+        # 为登录用户生成 JWT 令牌
+        token = generate_token(new_user)
+        
+        return jsonify({'code': '200','message': 'User registered successfully!','token': token,'user':new_user.model_dump()}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

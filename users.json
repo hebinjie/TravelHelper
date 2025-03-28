@@ -25,5 +25,15 @@
         "diary_count": 0,
         "followers_count": 0,
         "following_count": 0
+    },
+    {
+        "uid": 4,
+        "username": "\u5386\u4fca\u6770",
+        "password": "DPREtaKjG7tmcJ9",
+        "avatar": null,
+        "bio": null,
+        "diary_count": 0,
+        "followers_count": 0,
+        "following_count": 0
     }
 ]
