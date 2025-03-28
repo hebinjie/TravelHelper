@@ -14,7 +14,7 @@ Userbp = Blueprint('user', __name__)
 def generate_token(user):
     # 定义 JWT 令牌的负载，包含用户 ID 和过期时间
     payload = {
-        'user_id': user.id,
+        'user_id': user.uid,
         'username': user.username,
         'exp': datetime.now(timezone.utc) + timedelta(days=1)
     }
@@ -41,7 +41,7 @@ def token_required(f):
             # 读取所有用户数据
             users = User.read_users()
             # 查找与用户 ID 匹配的用户
-            user = next((u for u in users if u.id == user_id), None)
+            user = next((u for u in users if u.uid == user_id), None)
             if not user:
                 return jsonify({'message': 'Invalid token!'}), 401
 
@@ -54,7 +54,7 @@ def token_required(f):
     return decorated
 
 # 用户注册接口
-@Userbp.route('/api/register', methods=['POST'])
+@Userbp.route('/api/auth/register', methods=['POST'])
 def register():
     try:
         # 获取请求中的 JSON 数据
@@ -72,7 +72,7 @@ def register():
             return jsonify({'message': 'Username already exists!'}), 400
 
         # 创建新的 User 对象
-        new_user = User(id=len(users) + 1, username=username, password=password, avatar=None, bio=None, diary_count=0, followers_count=0, following_count=0)
+        new_user = User(uid=len(users) + 1, username=username, password=password, avatar=None, bio=None, diary_count=0, followers_count=0, following_count=0)
         # 将新用户添加到用户列表中
         users.append(new_user)
         User.write_users(users)
@@ -83,7 +83,7 @@ def register():
         return jsonify({'error': str(e)}), 500
 
 # 用户登录接口
-@Userbp.route('/api/login', methods=['POST'])
+@Userbp.route('/api/auth/login', methods=['POST'])
 def login():
     try:
         # 获取请求中的 JSON 数据
@@ -100,26 +100,26 @@ def login():
         user = next((u for u in users if u.username == username), None)
 
         if not user or user.password != password:
-            return jsonify({'message': 'Invalid username or password!'}), 401
+            return jsonify({'message': 'Wrong username or password!'}), 401
 
         # 为登录用户生成 JWT 令牌
         token = generate_token(user)
         
-        return jsonify({'code': '200','token': token}), 200
+        return jsonify({'code': '200','message': 'Login successfully','token': token,'user':user.model_dump()}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 # 获取指定编号用户信息
-@Userbp.route('/api/user/<int:id>', methods=['GET'])
-def GetUserInfo(id):
+@Userbp.route('/api/user/<int:uid>', methods=['GET'])
+def GetUserInfo(uid):
     try:
         # 从 JSON 文件中读取用户数据
         users = User.read_users()
         # 查找指定编号的用户
-        user= next((user for user in users if user.id == id), None)
+        user= next((user for user in users if user.uid == uid), None)
 
         if user:
-            return jsonify(user.model_dump(exclude={"password","id"})), 200
+            return jsonify(user.model_dump(exclude={"password","uid"})), 200
         else:
             return jsonify({'error': 'User not found'}), 404
 
@@ -127,8 +127,8 @@ def GetUserInfo(id):
         return jsonify({'error': str(e)}), 500
 
 # 更新指定编号用户信息
-@Userbp.route('/api/user/<int:id>', methods=['PUT'])
-def UpdateUserInfo(id):
+@Userbp.route('/api/user/<int:uid>', methods=['PUT'])
+def UpdateUserInfo(uid):
     try:
         # 获取请求中的 JSON 数据
         data = request.get_json()
@@ -139,7 +139,7 @@ def UpdateUserInfo(id):
             return jsonify({'error': 'No JSON data provided'}), 400
         
         # 查找指定 id 的用户
-        index = next((i for i, u in enumerate(users) if u.id == id), None)
+        index = next((i for i, u in enumerate(users) if u.uid == uid), None)
 
         if index is not None:
             user = users[index]

@@ -1,15 +1,27 @@
 [
     {
-        "id": 1,
+        "uid": 1,
         "username": "123456",
-        "password": "123456"
+        "password": "123456",
+        "avatar": "https://avatars.githubusercontent.com/u/38580644",
+        "bio": "\u95ee\u8d23\u5236\u72c2\u70ed\u8005"
     },
     {
-        "id": 2,
+        "uid": 2,
         "username": "123",
         "password": "123",
         "avatar": "https://avatars.githubusercontent.com/u/8010990",
         "bio": "\u51fa\u751f\u7231\u597d\u8005",
+        "diary_count": 0,
+        "followers_count": 0,
+        "following_count": 0
+    },
+    {
+        "uid": 3,
+        "username": "\u7afa\u5fd7\u56fd",
+        "password": "2RlVvsmXXXHOp9N",
+        "avatar": null,
+        "bio": null,
         "diary_count": 0,
         "followers_count": 0,
         "following_count": 0

@@ -5,7 +5,7 @@ import json
 from config import USER_FILE
 
 class User(BaseModel):
-    id: int
+    uid: int
     username: str
     password: str
     avatar: Optional[str] = None
