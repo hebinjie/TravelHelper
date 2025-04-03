@@ -1,12 +1,14 @@
 from flask import Blueprint, request, jsonify
 from models.diary import Diary
 import datetime
+from routes.user import token_required
 
 # 创建蓝图对象，用于组织路由
 Diarybp = Blueprint('diary', __name__)
 
 # 发布日记
 @Diarybp.route('/api/diary', methods=['POST'])
+@token_required
 def CreateDiary():
     try:
         # 获取前端传递的 JSON 数据
@@ -48,6 +50,7 @@ def CreateDiary():
 
 # 删除指定编号日记
 @Diarybp.route('/api/diary/<int:diary_id>', methods=['DELETE'])
+@token_required
 def DeleteDiary(diary_id):
     try:
         # 从 JSON 文件中读取日记数据
@@ -65,6 +68,7 @@ def DeleteDiary(diary_id):
 
 # 更新指定编号日记
 @Diarybp.route('/api/diary/<int:id>', methods=['PUT'])
+@token_required
 def UpadateDiary(id):
     try:
         # 从 JSON 文件中读取日记数据
@@ -119,6 +123,9 @@ def GetDiary(id):
         diary = next((diary for diary in diaries if diary.id == id), None)
 
         if diary:
+            diary.heat += 1  # 增加热度
+            # 将更新后的日记列表写入 JSON 文件
+            Diary.write_diaries(diaries)
             return jsonify(diary.model_dump()), 200
         else:
             return jsonify({'error': 'Diary not found'}), 404
@@ -129,7 +136,7 @@ def GetDiary(id):
 
 # 获取日记列表
 @Diarybp.route('/api/diary', methods=['GET'])
-def GetDiaryList():
+def ListDiaries():
     try:
         uid = request.args.get('uid', type=int)
         page = request.args.get('page', default=1, type=int)
@@ -143,6 +150,9 @@ def GetDiaryList():
         if uid and uid != 0:
             diaries = [diary for diary in diaries if diary.uid == uid]
         
+        # 按 heat 属性对日记进行排序
+        diaries.sort(key=lambda x: x.heat, reverse=True)
+
         # 计算当前页起始索引
         start_index = (page - 1) * limit
         # 计算当前页结束索引

@@ -131,6 +131,7 @@ def GetUserInfo(uid):
 
 # 更新指定编号用户信息
 @Userbp.route('/api/user/<int:uid>', methods=['PUT'])
+@token_required
 def UpdateUserInfo(uid):
     try:
         # 获取请求中的 JSON 数据
