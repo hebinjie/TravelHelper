@@ -15,7 +15,7 @@ class Diary(BaseModel):
     heat: Optional[int] = 0             # 日记的热度，默认为0
     create_time: Optional[str]          # 日记的创建时间
     update_time: Optional[str]          # 日记的更新时间、
-    rate: Optional[int] = 0             # 日记的评分，默认为0
+    rate: Optional[float] = 0             # 日记的评分，默认为0
     rate_num: Optional[int] = 0         # 日记的评分人数，默认为0
 
     # 类方法：从 JSON 文件中读取日记数据并转换为 Diary 对象列表

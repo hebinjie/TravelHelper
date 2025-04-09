@@ -2,6 +2,9 @@ from models import create_app
 from routes.diary import Diarybp
 from routes.user import Userbp
 from routes.spot import Spotbp
+import os
+
+os.environ['PYTHONUTF8'] = '1'  # 设置环境变量，确保 Flask 使用 UTF-8 编码
 
 # 创建 Flask 应用实例
 app = create_app()
