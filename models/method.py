@@ -1,6 +1,12 @@
 import random
+from typing import Callable, List, TypeVar
 
-def quick_sort(data, sort_by, reverse=False):
+T = TypeVar('T') # 泛型
+
+# @param data: List[T]  数据列表
+# @param comp: Callable[[T, T], int]  比较函数
+# @return: List[T]  排序后的列表
+def quick_sort(data: List[T], comp: Callable[[T, T], int]) -> List[T]:
     if len(data) <= 1:
         return data
     else:
@@ -11,16 +17,17 @@ def quick_sort(data, sort_by, reverse=False):
         right = []
         equal = []
         for item in data:
-            item_value = item[sort_by]
-            pivot_value = pivot[sort_by]
-            if (not reverse and item_value < pivot_value) or (reverse and item_value > pivot_value):
+            if comp(item, pivot) > 0:
                 left.append(item)
-            elif (not reverse and item_value > pivot_value) or (reverse and item_value < pivot_value):
+            elif comp(item, pivot) < 0:
                 right.append(item)
             else:
                 equal.append(item)
-        return quick_sort(left, sort_by, reverse) + equal + quick_sort(right, sort_by, reverse)
+        return quick_sort(left, comp) + equal + quick_sort(right, comp)
 
-def sort_data(data, sort_by, method='asc'):
-    reverse=method.lower()=='desc'  # 判断排序方式
-    return quick_sort(data, sort_by, reverse)  # 调用快速排序函数进行排序
+def sort_data(data, sort_by, method='desc'):
+    if method.lower()=='desc':# 判断排序方式
+        comp = lambda x, y: getattr(x, sort_by) - getattr(y, sort_by)
+    else:
+        comp = lambda x, y: getattr(y, sort_by) - getattr(x, sort_by)
+    return quick_sort(data, comp)  # 调用快速排序函数进行排序

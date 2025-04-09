@@ -6,6 +6,9 @@ import os
 
 os.environ['PYTHONUTF8'] = '1'  # 设置环境变量，确保 Flask 使用 UTF-8 编码
 
+import os
+os.environ['PYTHONUTF8'] = '1'  # 设置环境变量，确保 Python 使用 UTF-8 编码
+
 # 创建 Flask 应用实例
 app = create_app()
 # 注册蓝图，将路由与应用关联起来
