@@ -9,11 +9,7 @@ class Spot(BaseModel):
     id: int                             # 景点的唯一编号
     name: str                          # 景点的名称
     description: str                   # 景点的描述
-<<<<<<< HEAD
-    image_url: Optional[str] = []   # 景点包含的图片链接，默认为空列表
-=======
     image_url: str                      # 景点包含的图片链接，默认为空列表
->>>>>>> b32c095bf1bbb79d81f8b3239c9f56ebe7a6b2d7
     heat: Optional[int] = 0             # 景点的热度，默认为0
     rate: Optional[float] = 0             # 景点的评分，默认为0
     rate_num: Optional[int] = 0         # 景点的评分人数，默认为0

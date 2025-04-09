@@ -29,7 +29,7 @@ def GetSpots():
 
         response= {
             "code": 200,
-            "spots": paginated_spots
+            "spots": [{**spot.model_dump()} for spot in paginated_spots] # 将当前页的Spot对象转换为字典形式
         }
 
         return jsonify(response)
