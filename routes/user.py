@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify,g
 from models.user import User
 from datetime import datetime, timedelta,timezone
 from functools import wraps
@@ -38,12 +38,18 @@ def token_required(f):
             data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
             # 获取用户 ID
             user_id = data.get('user_id')
+            user_name = data.get('username')
             # 读取所有用户数据
             users = User.read_users()
             # 查找与用户 ID 匹配的用户
             user = next((u for u in users if u.uid == user_id), None)
             if not user:
                 return jsonify({'message': 'Invalid token!'}), 401
+            
+            g.user = {
+                'uid': user_id,
+                'username': user_name
+            }
 
         except jwt.ExpiredSignatureError:
             return jsonify({'message': 'Token has expired!'}), 401

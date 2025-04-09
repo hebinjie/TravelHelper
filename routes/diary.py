@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify,g
 from models.diary import Diary
 import datetime
 from routes.user import token_required
@@ -35,8 +35,12 @@ def CreateDiary():
         now = datetime.datetime.now()
         now_str = now.strftime('%Y-%m-%d %H:%M:%S')
         
+        # 从 g 对象中获取 username 和 uid
+        username = g.user.get('username')
+        uid = g.user.get('uid')
+
         # 创建新的日记对象
-        new_diary = Diary(id=new_id, title=title, content=content, images=image_paths, uid=111,username='aaa',create_time=now_str, update_time=now_str, heat=0)
+        new_diary = Diary(id=new_id, title=title, content=content, images=image_paths, uid=uid,username=username,create_time=now_str, update_time=now_str, heat=0, rate=0, rate_num=0)
         # 将新日记添加到日记列表中
         diaries.append(new_diary)
         # 将更新后的日记列表写入 JSON 文件
