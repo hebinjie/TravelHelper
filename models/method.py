@@ -1,5 +1,6 @@
 import random
 from typing import Callable, List, TypeVar
+from datetime import datetime
 
 T = TypeVar('T') # 泛型
 
@@ -26,8 +27,34 @@ def quick_sort(data: List[T], comp: Callable[[T, T], int]) -> List[T]:
         return quick_sort(left, comp) + equal + quick_sort(right, comp)
 
 def sort_data(data, sort_by, method='desc'):
-    if method.lower()=='desc':# 判断排序方式
-        comp = lambda x, y: getattr(x, sort_by) - getattr(y, sort_by)
-    else:
-        comp = lambda x, y: getattr(y, sort_by) - getattr(x, sort_by)
-    return quick_sort(data, comp)  # 调用快速排序函数进行排序
+    def compare(x, y):
+        x_value = getattr(x, sort_by)
+        y_value = getattr(y, sort_by)
+        if sort_by == 'create_time':
+            try:
+                x_dt = datetime.fromisoformat(x_value)
+                y_dt = datetime.fromisoformat(y_value)
+                if x_dt > y_dt:
+                    return 1 if method.lower() == 'asc' else -1
+                elif x_dt < y_dt:
+                    return -1 if method.lower() == 'asc' else 1
+                return 0
+            except ValueError:
+                # 如果无法转换为日期时间，按字符串比较
+                if x_value > y_value:
+                    return 1 if method.lower() == 'asc' else -1
+                elif x_value < y_value:
+                    return -1 if method.lower() == 'asc' else 1
+                return 0
+        elif isinstance(x_value, (int, float)) and isinstance(y_value, (int, float)):
+            if method.lower() == 'desc':
+                return x_value - y_value
+            return y_value - x_value
+        else:
+            if x_value > y_value:
+                return 1 if method.lower() == 'asc' else -1
+            elif x_value < y_value:
+                return -1 if method.lower() == 'asc' else 1
+            return 0
+
+    return quick_sort(data, compare)

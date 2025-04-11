@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify,g
 from models.diary import Diary
 import datetime
 from routes.user import token_required
+from models.method import sort_data
 
 # 创建蓝图对象，用于组织路由
 Diarybp = Blueprint('diary', __name__)
@@ -142,20 +143,28 @@ def GetDiary(id):
 @Diarybp.route('/api/diary', methods=['GET'])
 def ListDiaries():
     try:
+        s = request.args.getlist('s')
         uid = request.args.get('uid', type=int)
         page = request.args.get('page', default=1, type=int)
         limit = request.args.get('limit', default=3, type=int)
+        sortby= request.args.get('sortby', default='heat', type=str)  # 获取排序方式，默认为热度排序
+        method= request.args.get('method', default='desc', type=str)  # 获取排序方法，默认为降序
         if not uid and uid!=0:
             return jsonify({'error': 'No uid provided'}), 400
-
+        
         # 从 JSON 文件中读取日记数据
         diaries = Diary.read_diaries()
+
+        if s:
+            # 过滤出包含关键词的日记
+            diaries = [diary for diary in diaries if any(keyword in diary.title + diary.content + diary.username for keyword in s)]
         # 过滤出指定 uid 的日记
         if uid and uid != 0:
             diaries = [diary for diary in diaries if diary.uid == uid]
         
-        # 按 heat 属性对日记进行排序
-        diaries.sort(key=lambda x: x.heat, reverse=True)
+        if sortby:
+            # 按指定属性进行排序
+            diaries= sort_data(diaries, sortby, method)
 
         # 计算当前页起始索引
         start_index = (page - 1) * limit
@@ -172,45 +181,6 @@ def ListDiaries():
                     "content": diary.content[:20]} for diary in paginated_diaries],
             # 计算总页数
             "total_pages": (len(diaries) + limit - 1) // limit
-        }
-        # 将响应数据返回给客户端
-        return jsonify(response)
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-# 搜索日记
-@Diarybp.route('/api/diary/search', methods=['GET'])
-def SearchDiary():
-    try:
-        # 获取查询参数
-        s = request.args.getlist('s')
-        page = request.args.get('page', default=1, type=int)
-        limit = request.args.get('limit', default=3, type=int)
-
-        if not s:
-            return jsonify({'error': 'No keyword provided'}), 400
-
-        # 从 JSON 文件中读取日记数据
-        diaries = Diary.read_diaries()
-        # 过滤出包含关键词的日记
-        filtered_diaries = [diary for diary in diaries if any(keyword in diary.title + diary.content + diary.username for keyword in s)]
-
-        # 计算当前页起始索引
-        start_index = (page - 1) * limit
-        # 计算当前页结束索引
-        end_index = start_index + limit
-        # 获取当前页的日记数据
-        paginated_diaries = filtered_diaries[start_index:end_index]
-
-        # 构建响应数据字典
-        response = {
-            "diary_num": len(paginated_diaries),  # 当前页的日记数量
-            # 将当前页的Diary对象转换为字典形式
-            "data": [{**diary.model_dump(), 
-                    "content": diary.content[:20]} for diary in paginated_diaries],
-            # 计算总页数
-            "total_pages": (len(filtered_diaries) + limit - 1) // limit
         }
         # 将响应数据返回给客户端
         return jsonify(response)
