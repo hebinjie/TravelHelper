@@ -7,7 +7,7 @@ T = TypeVar('T') # 泛型
 # @param data: List[T]  数据列表
 # @param comp: Callable[[T, T], int]  比较函数
 # @return: List[T]  排序后的列表
-def quick_sort(data: List[T], comp: Callable[[T, T], int]) -> List[T]:
+def quick_sort(data: List[T], comp: Callable[[T, T], int], reverse: bool=False) -> List[T]:
     if len(data) <= 1:
         return data
     else:
@@ -18,9 +18,10 @@ def quick_sort(data: List[T], comp: Callable[[T, T], int]) -> List[T]:
         right = []
         equal = []
         for item in data:
-            if comp(item, pivot) > 0:
+            diff = comp(item, pivot)
+            if (diff > 0 and not reverse) or (diff < 0 and reverse):
                 left.append(item)
-            elif comp(item, pivot) < 0:
+            elif (diff < 0 and not reverse) or (diff > 0 and reverse):
                 right.append(item)
             else:
                 equal.append(item)
@@ -35,9 +36,9 @@ def sort_data(data, sort_by, method='desc'):
                 x_dt = datetime.fromisoformat(x_value)
                 y_dt = datetime.fromisoformat(y_value)
                 if x_dt > y_dt:
-                    return 1 if method.lower() == 'asc' else -1
+                    return 1 if method.lower() == 'desc' else -1
                 elif x_dt < y_dt:
-                    return -1 if method.lower() == 'asc' else 1
+                    return -1 if method.lower() == 'desc' else 1
                 return 0
             except ValueError:
                 # 如果无法转换为日期时间，按字符串比较

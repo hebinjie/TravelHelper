@@ -162,10 +162,18 @@ def ListDiaries():
         if uid and uid != 0:
             diaries = [diary for diary in diaries if diary.uid == uid]
         
+        count = len(diaries)  # 计算符合条件的日记数量
+
         if sortby:
             # 按指定属性进行排序
-            diaries= sort_data(diaries, sortby, method)
-
+            if sortby == 'time':
+                diaries = sort_data(diaries, 'create_time', method)
+            else:
+                diaries= sort_data(diaries, sortby, method)
+        
+        # 错误页码
+        if page < 1:
+            return jsonify({'error': 'Invalid page number'}), 400
         # 计算当前页起始索引
         start_index = (page - 1) * limit
         # 计算当前页结束索引
@@ -175,7 +183,7 @@ def ListDiaries():
 
         # 构建响应数据字典
         response = {
-            "diary_num": len(paginated_diaries),  # 当前页的日记数量
+            "diary_num": count,  # 日记总数量
             # 将当前页的Diary对象转换为字典形式
             "data": [{**diary.model_dump(), 
                     "content": diary.content[:20]} for diary in paginated_diaries],
