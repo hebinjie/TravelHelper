@@ -13,6 +13,7 @@ class User(BaseModel):
     diary_count: Optional[int] = 0
     followers_count: Optional[int] = 0
     following_count: Optional[int] = 0
+    tags: Optional[List[str]] = []     # 用户偏好的标签列表
 
  # 类方法：从 JSON 文件中读取用户数据并转换为 User 对象列表
     @classmethod

@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify,g
 from models.diary import Diary
 import datetime
 from routes.user import token_required
-from models.method import sort_data
+from models.method import sort_data,recommend_data
 
 # 创建蓝图对象，用于组织路由
 Diarybp = Blueprint('diary', __name__)
@@ -41,7 +41,7 @@ def CreateDiary():
         uid = g.user.get('uid')
 
         # 创建新的日记对象
-        new_diary = Diary(id=new_id, title=title, content=content, images=image_paths, uid=uid,username=username,create_time=now_str, update_time=now_str, heat=0, rate=0, rate_num=0)
+        new_diary = Diary(id=new_id, title=title, content=content, images=image_paths, uid=uid,username=username,create_time=now_str, update_time=now_str, heat=0, rate=0, rate_num=0, tags=[])
         # 将新日记添加到日记列表中
         diaries.append(new_diary)
         # 将更新后的日记列表写入 JSON 文件
@@ -141,6 +141,7 @@ def GetDiary(id):
 
 # 获取日记列表
 @Diarybp.route('/api/diary', methods=['GET'])
+@token_required
 def ListDiaries():
     try:
         s = request.args.getlist('s')
@@ -149,6 +150,7 @@ def ListDiaries():
         limit = request.args.get('limit', default=3, type=int)
         sortby= request.args.get('sortby', default='heat', type=str)  # 获取排序方式，默认为热度排序
         method= request.args.get('method', default='desc', type=str)  # 获取排序方法，默认为降序
+        reader_id = g.user.get('uid')
         if not uid and uid!=0:
             return jsonify({'error': 'No uid provided'}), 400
         
@@ -168,6 +170,8 @@ def ListDiaries():
             # 按指定属性进行排序
             if sortby == 'time':
                 diaries = sort_data(diaries, 'create_time', method)
+            elif sortby == 'recommend':
+                diaries = recommend_data(diaries, reader_id)  # 调用推荐函数进行排序
             else:
                 diaries= sort_data(diaries, sortby, method)
         

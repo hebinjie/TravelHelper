@@ -1,6 +1,7 @@
 import random
 from typing import Callable, List, TypeVar
 from datetime import datetime
+from models.user import User
 
 T = TypeVar('T') # 泛型
 
@@ -57,5 +58,28 @@ def sort_data(data, sort_by, method='desc'):
             elif x_value < y_value:
                 return -1 if method.lower() == 'asc' else 1
             return 0
+
+    return quick_sort(data, compare)
+
+def recommend_data(data, reader_id):
+    # 读取所有用户数据
+    users = User.read_users()
+    # 查找当前读者
+    reader = next((u for u in users if u.uid == reader_id), None)
+    if not reader:
+        # 如果未找到读者，直接返回原数据
+        return data
+    # 获取读者的偏好标签
+    reader_tags = reader.tags
+
+    def compare(x, y):
+        # 计算 x 日记的推荐得分
+        x_match_count = len(set(x.tags).intersection(set(reader_tags)))
+        x_score = (x.heat + x.rate) * 3 * x_match_count
+        # 计算 y 日记的推荐得分
+        y_match_count = len(set(y.tags).intersection(set(reader_tags)))
+        y_score = (y.heat + y.rate) * 3 * y_match_count
+        # 降序排序
+        return y_score - x_score
 
     return quick_sort(data, compare)
