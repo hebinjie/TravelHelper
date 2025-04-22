@@ -120,6 +120,7 @@ def UpadateDiary(id):
 
 # 获取指定编号日记
 @Diarybp.route('/api/diary/<int:id>', methods=['GET'])
+@token_required
 def GetDiary(id):
     try:
         # 从 JSON 文件中读取日记数据

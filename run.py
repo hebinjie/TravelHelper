@@ -2,6 +2,7 @@ from models import create_app
 from routes.diary import Diarybp
 from routes.user import Userbp
 from routes.spot import Spotbp
+from routes.image import Imagebp
 
 import os
 os.environ['PYTHONUTF8'] = '1'  # 设置环境变量，确保 Python 使用 UTF-8 编码
@@ -12,6 +13,7 @@ app = create_app()
 app.register_blueprint(Diarybp)
 app.register_blueprint(Userbp)
 app.register_blueprint(Spotbp)
+app.register_blueprint(Imagebp)
 
 
 if __name__ == '__main__':
