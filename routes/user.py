@@ -155,11 +155,14 @@ def UpdateUserInfo(uid):
             user = users[index]
             avatar = data.get('avatar')
             bio = data.get('bio')
+            tags = data.get('tags')
 
             if avatar:
                 user.avatar = avatar
             if bio:
                 user.bio = bio
+            if tags:
+                user.tags = tags
 
             # 更新列表中的对应用户信息
             users[index] = user
