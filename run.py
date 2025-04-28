@@ -4,8 +4,13 @@ from routes.user import Userbp
 from routes.spot import Spotbp
 from routes.image import Imagebp
 
+from dotenv import load_dotenv
 import os
+
+load_dotenv()  # 加载 .env 文件中的环境变量
 os.environ['PYTHONUTF8'] = '1'  # 设置环境变量，确保 Python 使用 UTF-8 编码
+
+port = int(os.getenv('PORT', 8000))  # 从环境变量中获取端口号，默认为 8000
 
 # 创建 Flask 应用实例
 app = create_app()
@@ -17,4 +22,4 @@ app.register_blueprint(Imagebp)
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)
