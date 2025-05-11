@@ -26,7 +26,17 @@ def quick_sort(data: List[T], comp: Callable[[T, T], int], reverse: bool=False) 
                 right.append(item)
             else:
                 equal.append(item)
-        return quick_sort(left, comp) + equal + quick_sort(right, comp)
+        
+        if len(left)>=10:
+            left = quick_sort(left, comp, reverse)
+            return left[:10]+left[10:] + equal + right
+        elif len(left)+len(equal)>=10:
+            left = quick_sort(left, comp, reverse)
+            remaining = 10-len(left)
+            return left + equal[:remaining] + equal[remaining:] + right
+        else:
+            return quick_sort(left, comp,reverse) + equal + quick_sort(right, comp, reverse)
+    
 
 def sort_data(data, sort_by, method='desc'):
     def compare(x, y):

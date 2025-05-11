@@ -18,6 +18,7 @@ class Diary(BaseModel):
     rate: Optional[float] = 0             # 日记的评分，默认为0
     rate_num: Optional[int] = 0         # 日记的评分人数，默认为0
     tags: Optional[List[str]] = []     # 日记的标签列表
+    type: Optional[str] = None          # 日记对应的美食类型
 
     # 类方法：从 JSON 文件中读取日记数据并转换为 Diary 对象列表
     @classmethod

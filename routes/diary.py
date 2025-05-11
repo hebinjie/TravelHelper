@@ -151,6 +151,7 @@ def ListDiaries():
         limit = request.args.get('limit', default=3, type=int)
         sortby= request.args.get('sortby', default='heat', type=str)  # 获取排序方式，默认为热度排序
         method= request.args.get('method', default='desc', type=str)  # 获取排序方法，默认为降序
+        filter = request.args.get('filter', default='all', type=str)  # 获取过滤方式，默认为全部
         reader_id = g.user.get('uid')
         if not uid and uid!=0:
             return jsonify({'error': 'No uid provided'}), 400
@@ -164,6 +165,9 @@ def ListDiaries():
         # 过滤出指定 uid 的日记
         if uid and uid != 0:
             diaries = [diary for diary in diaries if diary.uid == uid]
+        if filter and filter != 'all':
+            # 过滤出指定类型的日记
+            diaries = [diary for diary in diaries if diary.type == filter]
         
         count = len(diaries)  # 计算符合条件的日记数量
 
