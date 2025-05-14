@@ -204,3 +204,41 @@ def ListDiaries():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# 评价日记接口
+@Diarybp.route('/api/diary/<int:id>', methods=['POST'])
+@token_required
+def JudgeDiary(id):
+    try:
+        # 从 JSON 文件中读取日记数据
+        diaries = Diary.read_diaries()
+        # 获取前端传递的 JSON 数据
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+        # 从 JSON 数据中获取日记评分
+        rate = data.get('rate')
+
+        if not id:
+            return jsonify({'error': 'No ID provided'}), 400
+        
+        # 查找指定 id 的日记
+        index = next((i for i, d in enumerate(diaries) if d.id == id), None)
+
+        if index is not None:
+            diary = diaries[index]
+
+            diary.rate = (diary.rate * diary.rate_num + rate) / (diary.rate_num + 1) if diary.rate_num > 0 else rate
+            diary.rate_num += 1
+
+            # 更新日记列表中的对应日记
+            diaries[index] = diary
+            # 将更新后的日记列表写入 JSON 文件
+            Diary.write_diaries(diaries)
+
+            return jsonify({"code": 200,'message': 'Diary Judged successfully'}), 200
+        else:
+            return jsonify({'error': 'Diary not found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
