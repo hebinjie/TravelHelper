@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify,g
 from models.diary import Diary
 import datetime
 from routes.user import token_required
-from models.method import sort_data,recommend_data
+from models.method import sort_data,recommend_data, search_diaries
 
 # 创建蓝图对象，用于组织路由
 Diarybp = Blueprint('diary', __name__)
@@ -160,8 +160,8 @@ def ListDiaries():
         diaries = Diary.read_diaries()
 
         if s:
-            # 过滤出包含关键词的日记
-            diaries = [diary for diary in diaries if any(keyword in diary.title + diary.content + diary.username for keyword in s)]
+            # 调用搜索函数
+            diaries = search_diaries(diaries, s)
         # 过滤出指定 uid 的日记
         if uid and uid != 0:
             diaries = [diary for diary in diaries if diary.uid == uid]
