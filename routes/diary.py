@@ -52,7 +52,6 @@ def CreateDiary():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 # 删除指定编号日记
 @Diarybp.route('/api/diary/<int:diary_id>', methods=['DELETE'])
 @token_required
@@ -69,7 +68,6 @@ def DeleteDiary(diary_id):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 # 更新指定编号日记
 @Diarybp.route('/api/diary/<int:id>', methods=['PUT'])
@@ -117,7 +115,6 @@ def UpadateDiary(id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 # 获取指定编号日记
 @Diarybp.route('/api/diary/<int:id>', methods=['GET'])
 @token_required
@@ -138,7 +135,6 @@ def GetDiary(id):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 # 获取日记列表
 @Diarybp.route('/api/diary', methods=['GET'])

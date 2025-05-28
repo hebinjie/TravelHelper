@@ -1,11 +1,14 @@
 import os
 import json
+from models.huffman import compress
 
 # 日记存储的 JSON 文件(若无JSON文件则创建一个)
 DIARY_FILE = 'diaries.json'
 if not os.path.exists(DIARY_FILE):
+    empty_diary = json.dumps([])
+    compressed_diary = compress(empty_diary)
     with open(DIARY_FILE, 'w') as f:
-        json.dump([], f)
+        f.write(compressed_diary)
 
 # 用户存储的 JSON 文件(若无JSON文件则创建一个)
 USER_FILE = 'users.json'

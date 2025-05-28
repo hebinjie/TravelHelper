@@ -3,6 +3,7 @@ from typing import List, Optional
 import json
 # 从配置文件中导入日记文件路径配置
 from config import DIARY_FILE
+from models.huffman import compress,decompress
 
 # 定义日记数据模型类
 class Diary(BaseModel):
@@ -26,8 +27,14 @@ class Diary(BaseModel):
         try:
             # 打开日记 JSON 文件进行读取
             with open(DIARY_FILE, 'r') as f:
-                # 读取 JSON 文件内容
-                diaries_data = json.load(f)
+                # 解压缩文件内容
+                compressed_data = f.read()
+                if compressed_data:
+                    decompressed_data = decompress(compressed_data)
+                    # 将解压缩后的数据转换为 JSON 格式
+                    diaries_data = json.loads(decompressed_data)
+                else:
+                    diaries_data = []
                 # 将读取到的每个日记字典转换为 Diary 对象，并返回列表
                 return [cls(**diary) for diary in diaries_data]
         # 如果文件不存在，返回空列表
@@ -39,6 +46,8 @@ class Diary(BaseModel):
     def write_diaries(cls, diaries: List['Diary']):
         # 将每个 Diary 对象转换为字典
         diaries_data = [diary.model_dump(exclude_unset=True) for diary in diaries]
-        # 打开日记 JSON 文件进行写入
+        # 压缩数据
+        compressed_data = compress(json.dumps(diaries_data))
+        # 打开日记文件进行写入
         with open(DIARY_FILE, 'w') as f:
-            json.dump(diaries_data, f, indent=4)
+            f.write(compressed_data)
