@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import json
 # 从配置文件中导入日记文件路径配置
-from config import DIARY_FILE, COMPRESSED_DIARY_FILE
+from config import COMPRESSED_DIARY_FILE
 from models.huffman import compress, decompress
 
 # 定义日记数据模型类
@@ -21,29 +21,38 @@ class Diary(BaseModel):
     tags: Optional[List[str]] = []      # 日记的标签列表
     type: Optional[str] = None          # 日记对应的美食类型
 
-    # 类方法：从 JSON 文件中读取日记数据并转换为 Diary 对象列表
+    # 类方法：从压缩文件中读取日记数据并转换为 Diary 对象列表
     @classmethod
     def read_diaries(cls):
         try:
             # 解压缩文件
-            decompress(COMPRESSED_DIARY_FILE, DIARY_FILE)
-            # 打开日记 JSON 文件进行读取
-            with open(DIARY_FILE, 'r') as f:
+            temp_file = 'temp_diaries.json'
+            decompress(COMPRESSED_DIARY_FILE, temp_file)
+            # 打开临时日记 JSON 文件进行读取
+            with open(temp_file, 'r') as f:
                 # 读取 JSON 文件内容
                 diaries_data = json.load(f)
                 # 将读取到的每个日记字典转换为 Diary 对象，并返回列表
-                return [cls(**diary) for diary in diaries_data]
+                diaries = [cls(**diary) for diary in diaries_data]
+            # 删除临时文件
+            import os
+            os.remove(temp_file)
+            return diaries
         # 如果文件不存在，返回空列表
         except FileNotFoundError:
             return []
 
-    # 类方法：将 Diary 对象列表转换为字典并写入 JSON 文件
+    # 类方法：将 Diary 对象列表转换为字典并写入压缩文件
     @classmethod
     def write_diaries(cls, diaries: List['Diary']):
         # 将每个 Diary 对象转换为字典
         diaries_data = [diary.model_dump(exclude_unset=True) for diary in diaries]
-        # 打开日记 JSON 文件进行写入
-        with open(DIARY_FILE, 'w') as f:
+        # 创建临时文件
+        temp_file = 'temp_diaries.json'
+        with open(temp_file, 'w') as f:
             json.dump(diaries_data, f, indent=4)
         # 压缩文件
-        compress(DIARY_FILE, COMPRESSED_DIARY_FILE)
+        compress(temp_file, COMPRESSED_DIARY_FILE)
+        # 删除临时文件
+        import os
+        os.remove(temp_file)

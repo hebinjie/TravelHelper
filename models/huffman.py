@@ -84,7 +84,6 @@ class HuffTree(object):
     def traverse_huffman_tree(self, root, code, char_freq):
         if root.isleaf():
             char_freq[root.get_value()] = code
-            print(("it = %c  and  freq = %d  code = %s") % (chr(root.get_value()), root.get_wieght(), code))
             return None
         else:
             self.traverse_huffman_tree(root.get_left(), code + '0', char_freq)
@@ -125,10 +124,6 @@ def compress(inputfilename, outputfilename):
             char_freq[tem] = char_freq[tem] + 1
         else:
             char_freq[tem] = 1
-
-    # 输出统计结果
-    for tem in char_freq.keys():
-        print(tem, ' : ', char_freq[tem])
 
     # 3. 开始构造原始的huffman编码树 数组，用于构造Huffman编码树
     list_hufftrees = []
@@ -249,7 +244,6 @@ def decompress(inputfilename, outputfilename):
         j = j | a3
         j = j << 8
         j = j | a4
-        print(c, j)
         char_freq[c] = j
 
     # 3. 重建huffman 编码树，和压缩文件中建立Huffman编码树的方法一致
