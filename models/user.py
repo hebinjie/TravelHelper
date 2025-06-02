@@ -37,3 +37,10 @@ class User(BaseModel):
         # 打开用户 JSON 文件进行写入
         with open(USER_FILE, 'w') as f:
             json.dump(users_data, f, indent=4)
+    
+    # 类方法：根据用户id查找用户名
+    @classmethod
+    def get_username_by_uid(cls, uid: int) -> Optional[str]:
+        users = cls.read_users()
+        user = next((user for user in users if user.uid == uid), None)
+        return user.username if user else None

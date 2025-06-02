@@ -1,3 +1,6 @@
+import json
+import os
+from typing import List
 from flask import Blueprint, request, jsonify,g
 from models.diary import Diary
 import datetime
@@ -12,6 +15,29 @@ Diarybp = Blueprint('diary', __name__)
 @token_required
 def CreateDiary():
     try:
+        # # 获取当前文件的绝对路径
+        # current_file_path = os.path.abspath(__file__)
+        # current_dir = os.path.dirname(current_file_path)
+
+        # # 构建目标文件的相对路径
+        # json_file_path = os.path.join(current_dir, "..", "generated_diaries.json")
+
+        # # 读取生成的 JSON 文件
+        # with open(json_file_path, "r") as f:
+        #     diaries_data = json.load(f)
+
+        # # 转换为 Diary 对象列表
+        # diaries: List[Diary] = [Diary(**item) for item in diaries_data]
+
+        # # 写入压缩文件
+        # Diary.write_diaries(diaries)
+
+        # # 从压缩文件读取
+        # loaded_diaries = Diary.read_diaries()
+        # print(f"成功加载 {len(loaded_diaries)} 篇日记")
+        # return jsonify({'code': 200,'message': 'Diary published successfully', 'id': 1}), 200
+
+
         # 获取前端传递的 JSON 数据
         data = request.get_json()
         if not data:
