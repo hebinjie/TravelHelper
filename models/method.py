@@ -3,6 +3,8 @@ from typing import Callable, List, TypeVar
 from datetime import datetime
 from models.user import User
 
+
+
 T = TypeVar('T') # 泛型
 
 # @param data: List[T]  数据列表
@@ -115,6 +117,8 @@ def compute_lps(pattern):
 
 # KMP 算法进行字符串匹配
 def kmp_search(text, pattern):
+    if not pattern:
+        return True  # 如果模式为空，直接返回 True
     n = len(text)
     m = len(pattern)
     lps = compute_lps(pattern)
@@ -135,6 +139,9 @@ def kmp_search(text, pattern):
 
 # 新增搜索函数
 def search_diaries(diaries, keywords):
+    if not keywords:
+        return diaries
+
     title_results = []
     other_results = []
     for diary in diaries:
@@ -144,6 +151,10 @@ def search_diaries(diaries, keywords):
             title_results.append(diary)
         if found_in_other:
             other_results.append(diary)
-    # 合并结果并去重
-    combined_results = list(set(title_results + other_results))
+        
+    # 合并结果并去重（使用 id 作为唯一标识）
+    combined = title_results + other_results
+    unique_diaries = {d.id: d for d in combined}
+    combined_results = list(unique_diaries.values())
+
     return combined_results

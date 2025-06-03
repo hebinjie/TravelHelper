@@ -181,6 +181,7 @@ def ListDiaries():
         # 从 JSON 文件中读取日记数据
         diaries = Diary.read_diaries()
 
+        s = [k.strip() for k in s if k.strip()]
         if s:
             # 调用搜索函数
             diaries = search_diaries(diaries, s)
