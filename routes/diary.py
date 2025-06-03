@@ -37,7 +37,6 @@ def CreateDiary():
         # print(f"成功加载 {len(loaded_diaries)} 篇日记")
         # return jsonify({'code': 200,'message': 'Diary published successfully', 'id': 1}), 200
 
-
         # 获取前端传递的 JSON 数据
         data = request.get_json()
         if not data:
@@ -149,11 +148,13 @@ def GetDiary(id):
         # 从 JSON 文件中读取日记数据
         diaries = Diary.read_diaries()
         # 查找指定编号的日记
-        diary = next((diary for diary in diaries if diary.id == id), None)
+        index = next((i for i, d in enumerate(diaries) if d.id == id), None)
+        diary = diaries[index]
 
         if diary:
             diary.heat += 1  # 增加热度
             # 将更新后的日记列表写入 JSON 文件
+            diaries[index] = diary
             Diary.write_diaries(diaries)
             return jsonify(diary.model_dump()), 200
         else:
@@ -229,7 +230,7 @@ def ListDiaries():
         return jsonify({'error': str(e)}), 500
 
 # 评价日记接口
-@Diarybp.route('/api/diary/<int:id>', methods=['POST'])
+@Diarybp.route('/api/diary/rate/<int:id>', methods=['POST'])
 @token_required
 def JudgeDiary(id):
     try:

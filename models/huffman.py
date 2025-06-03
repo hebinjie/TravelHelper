@@ -190,16 +190,16 @@ def compress(inputfilename, outputfilename):
                 out = 0
 
         # 处理剩下来的不满8位的code
-        output.write(bytes([len(code)]))
-        out = 0
-        for i in range(len(code)):
-            out = out << 1
-            if code[i] == '1':
-                out = out | 1
-        for i in range(8 - len(code)):
-            out = out << 1
-        # 把最后一位给写入到文件当中
-        output.write(bytes([out]))
+        if len(code) > 0:
+            # 保存剩余 bits 的长度
+            padding_length = 8 - len(code)
+            # 将剩余 bits 左移填充 0，并记录实际长度
+            out = 0
+            for bit in code:
+                out = (out << 1) | (1 if bit == '1' else 0)
+            out <<= padding_length  # 填充 0 到 8 位
+            output.write(bytes([len(code)]))  # 先写入实际长度
+            output.write(bytes([out]))        # 再写入填充后的字节
 
 # 解压缩文件，参数有 
 # inputfilename：压缩文件的地址和名字
@@ -279,13 +279,12 @@ def decompress(inputfilename, outputfilename):
                 code = code[1:]
 
         # 4.1 处理最后 24位
-        sub_code = code[-16:-8]
-        last_length = 0
-        for i in range(8):
-            last_length = last_length << 1
-            if sub_code[i] == '1':
-                last_length = last_length | 1
-        code = code[:-16] + code[-8:-8 + last_length]
+        # 获取最后保存的 bits 长度和填充后的字节
+        last_byte = filedata[-1]       # 最后一个字节是填充后的数据
+        last_length = filedata[-2]     # 倒数第二个字节是实际长度
+        # 将 last_byte 转换为二进制字符串，并截取前 last_length 位
+        code = code[:-16]  # 移除末尾的 16 位（8 位长度 + 8 位填充）
+        code += format(last_byte, '08b')[:last_length]  # 添加有效的 bits
         while len(code) > 0:
             if currnode.isleaf():
                 tem_byte = bytes([currnode.get_value()])

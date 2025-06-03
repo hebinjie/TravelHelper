@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import List, Optional
 import json
+import os
+import tempfile
 # 从配置文件中导入日记文件路径配置
 from config import COMPRESSED_DIARY_FILE
 from models.huffman import compress, decompress
@@ -25,20 +27,17 @@ class Diary(BaseModel):
     @classmethod
     def read_diaries(cls):
         try:
-            # 解压缩文件
-            temp_file = 'temp_diaries.json'
+        # 创建唯一临时文件
+            with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as tmp:
+                temp_file = tmp.name
+            # 解压缩到唯一临时文件
             decompress(COMPRESSED_DIARY_FILE, temp_file)
-            # 打开临时日记 JSON 文件进行读取
+        
             with open(temp_file, 'r') as f:
-                # 读取 JSON 文件内容
                 diaries_data = json.load(f)
-                # 将读取到的每个日记字典转换为 Diary 对象，并返回列表
                 diaries = [cls(**diary) for diary in diaries_data]
-            # 删除临时文件
-            import os
             os.remove(temp_file)
             return diaries
-        # 如果文件不存在，返回空列表
         except FileNotFoundError:
             return []
 
@@ -47,12 +46,10 @@ class Diary(BaseModel):
     def write_diaries(cls, diaries: List['Diary']):
         # 将每个 Diary 对象转换为字典
         diaries_data = [diary.model_dump(exclude_unset=True) for diary in diaries]
-        # 创建临时文件
-        temp_file = 'temp_diaries.json'
+        # 创建唯一临时文件
+        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as tmp:
+            temp_file = tmp.name
         with open(temp_file, 'w') as f:
             json.dump(diaries_data, f, indent=4)
-        # 压缩文件
         compress(temp_file, COMPRESSED_DIARY_FILE)
-        # 删除临时文件
-        import os
         os.remove(temp_file)
