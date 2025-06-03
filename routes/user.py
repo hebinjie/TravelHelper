@@ -78,7 +78,7 @@ def register():
             return jsonify({'message': 'Username already exists!'}), 400
 
         # 创建新的 User 对象
-        new_user = User(uid=len(users) + 1, username=username, password=password, avatar=None, bio=None, diary_count=0, followers_count=0, following_count=0)
+        new_user = User(uid=len(users) + 1, username=username, password=password, avatar=None, bio=None, diary_count=0, followers_count=0, following_count=0,tags=[])
         # 将新用户添加到用户列表中
         users.append(new_user)
         User.write_users(users)
