@@ -10,7 +10,7 @@ import os
 load_dotenv()  # 加载 .env 文件中的环境变量
 os.environ['PYTHONUTF8'] = '1'  # 设置环境变量，确保 Python 使用 UTF-8 编码
 
-port = int(os.getenv('PORT', 8001))  # 从环境变量中获取端口号，默认为 8000
+port = int(os.getenv('PORT', 8001))  # 从环境变量中获取端口号，默认为 8001
 
 # 创建 Flask 应用实例
 app = create_app()
